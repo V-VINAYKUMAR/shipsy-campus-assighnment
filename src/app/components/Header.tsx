@@ -15,7 +15,7 @@ export default function Header() {
         } else {
           setSession(null);
         }
-      } catch (error) {
+      } catch {
         setSession(null);
       } finally {
         setLoading(false);

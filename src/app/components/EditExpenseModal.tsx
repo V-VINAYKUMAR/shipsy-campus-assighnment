@@ -1,17 +1,28 @@
 'use client';
 import { useState, useEffect } from 'react';
 
+interface Expense {
+  id?: string;
+  description: string;
+  category: 'TRAVEL' | 'FOOD' | 'OFFICE' | 'OTHER';
+  reimbursable: boolean;
+  amount: number;
+  taxRate: number;
+  grandTotal?: number;
+  createdAt?: string;
+}
+
 interface EditExpenseModalProps {
-  expense: any;
+  expense: Expense | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (expenseData: any) => Promise<void>;
+  onSave: (expenseData: Omit<Expense, 'id' | 'grandTotal' | 'createdAt'>) => Promise<void>;
 }
 
 export default function EditExpenseModal({ expense, isOpen, onClose, onSave }: EditExpenseModalProps) {
   const [form, setForm] = useState({
     description: '',
-    category: 'TRAVEL',
+    category: 'TRAVEL' as 'TRAVEL' | 'FOOD' | 'OFFICE' | 'OTHER',
     reimbursable: false,
     amount: '',
     taxRate: '18'
@@ -35,7 +46,13 @@ export default function EditExpenseModal({ expense, isOpen, onClose, onSave }: E
     setSubmitting(true);
     
     try {
-      await onSave(form);
+      await onSave({
+        description: form.description,
+        category: form.category,
+        reimbursable: form.reimbursable,
+        amount: parseFloat(form.amount),
+        taxRate: parseFloat(form.taxRate)
+      });
       onClose();
     } catch (error) {
       console.error('Error saving expense:', error);
@@ -82,7 +99,7 @@ export default function EditExpenseModal({ expense, isOpen, onClose, onSave }: E
             <select 
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-200 rounded-xl" 
               value={form.category} 
-              onChange={e => setForm({ ...form, category: e.target.value })}
+              onChange={e => setForm({ ...form, category: e.target.value as 'TRAVEL' | 'FOOD' | 'OFFICE' | 'OTHER' })}
             >
               <option value="TRAVEL">✈️ Travel</option>
               <option value="FOOD">🍽️ Food</option>
@@ -148,46 +165,46 @@ export default function EditExpenseModal({ expense, isOpen, onClose, onSave }: E
                 />
               </div>
             </div>
-          </div>
-          
-          {/* Preview Total */}
-          {form.amount && form.taxRate && (
-            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-              <div className="text-center">
-                <p className="text-sm text-gray-400">Total Amount</p>
-                <p className="text-xl font-bold text-emerald-400">
-                  ₹{(parseFloat(form.amount) + (parseFloat(form.amount) * parseFloat(form.taxRate) / 100)).toFixed(2)}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Base: ₹{parseFloat(form.amount).toFixed(2)} + Tax: ₹{(parseFloat(form.amount) * parseFloat(form.taxRate) / 100).toFixed(2)}
-                </p>
+            
+            {/* Preview Total */}
+            {form.amount && form.taxRate && (
+              <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                <div className="text-center">
+                  <p className="text-sm text-gray-400">Total Amount</p>
+                  <p className="text-xl font-bold text-emerald-400">
+                    ₹{(parseFloat(form.amount) + (parseFloat(form.amount) * parseFloat(form.taxRate) / 100)).toFixed(2)}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Base: ₹{parseFloat(form.amount).toFixed(2)} + Tax: ₹{(parseFloat(form.amount) * parseFloat(form.taxRate) / 100).toFixed(2)}
+                  </p>
+                </div>
               </div>
+            )}
+            
+            {/* Actions */}
+            <div className="flex space-x-3 pt-4">
+              <button 
+                type="button" 
+                onClick={onClose}
+                className="flex-1 px-4 py-3 bg-gray-700 text-gray-200 font-medium rounded-xl hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                disabled={submitting}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Updating...
+                  </>
+                ) : (
+                  'Update Expense'
+                )}
+              </button>
             </div>
-          )}
-          
-          {/* Actions */}
-          <div className="flex space-x-3 pt-4">
-            <button 
-              type="button" 
-              onClick={onClose}
-              className="flex-1 px-4 py-3 bg-gray-700 text-gray-200 font-medium rounded-xl hover:bg-gray-600 transition-colors"
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              disabled={submitting}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {submitting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Updating...
-                </>
-              ) : (
-                'Update Expense'
-              )}
-            </button>
           </div>
         </form>
       </div>
