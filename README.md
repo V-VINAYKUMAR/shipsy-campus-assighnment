@@ -178,3 +178,4 @@ This project is part of the Campus assignment and is for educational purposes.
 ---
 
 **Built with ❤️ using Next.js, Prisma, and Tailwind CSS**
+# shipsy-campus-assighnment
