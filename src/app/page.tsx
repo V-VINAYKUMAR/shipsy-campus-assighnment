@@ -2,13 +2,15 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import EditExpenseModal from './components/EditExpenseModal';
+import { Expense, FormState } from '../../src/types/types';
+
 
 export default function HomePage() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expensesList, setExpensesList] = useState({ items: [], total: 0 });
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingExpense, setEditingExpense] = useState(null);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   const refreshSession = async () => {
     try {
@@ -99,25 +101,24 @@ export default function HomePage() {
     );
   }
 
-  const handleEditExpense = (expense: any) => {
+  const handleEditExpense = (expense: Expense) => {
     setEditingExpense(expense);
     setEditModalOpen(true);
   };
 
-  const handleSaveExpense = async (expenseData: any) => {
+  const handleSaveExpense = async (expenseData: FormState) => {
+    if (!editingExpense) return;
+  
     try {
       const res = await fetch(`/api/expenses/${editingExpense.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(expenseData)
       });
-      
+  
       if (res.ok) {
-        // Close the modal
         setEditModalOpen(false);
         setEditingExpense(null);
-        
-        // Refresh the expenses data to update the UI
         await refreshExpenses();
       } else {
         throw new Error('Failed to update expense');

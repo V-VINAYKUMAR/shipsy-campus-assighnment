@@ -1,5 +1,4 @@
 # AI Campus — Expenses App
-
 A modern, full-stack expense management application built with Next.js, Prisma, and PostgreSQL. Features a beautiful, responsive UI with excellent user experience.
 
 ## ✨ Features

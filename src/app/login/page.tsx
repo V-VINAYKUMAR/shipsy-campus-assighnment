@@ -1,9 +1,8 @@
-
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -18,20 +17,19 @@ export default function LoginPage() {
     }
   }, [searchParams]);
 
-  const onSubmit = async (e) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
-    
+
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ username, password }),
     });
-    
+
     if (res.ok) {
-      // Refresh the session to ensure it's properly loaded
       await fetch('/api/auth/session');
       router.push('/');
     } else {
@@ -73,27 +71,27 @@ export default function LoginPage() {
           <form onSubmit={onSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium mb-3 text-gray-200">Username</label>
-              <input 
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-200" 
+              <input
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-200"
                 placeholder="Enter your username"
-                value={username} 
-                onChange={e => setUsername(e.target.value)} 
-                required 
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                required
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-3 text-gray-200">Password</label>
-              <input 
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-200" 
-                type="password" 
+              <input
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-200"
+                type="password"
                 placeholder="Enter your password"
-                value={password} 
-                onChange={e => setPassword(e.target.value)} 
-                required 
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
               />
             </div>
-            
+
             {error && (
               <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
                 <div className="flex items-center space-x-2">
@@ -104,20 +102,13 @@ export default function LoginPage() {
                 </div>
               </div>
             )}
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               disabled={loading}
               className="w-full py-3 bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
-                  Signing in...
-                </>
-              ) : (
-                'Sign In'
-              )}
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
@@ -133,5 +124,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="text-white">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -1,8 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
 
+interface User {
+  id: string;
+  username: string;
+  email: string;
+}
+
 export default function Header() {
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,7 +21,7 @@ export default function Header() {
         } else {
           setSession(null);
         }
-      } catch (error) {
+      } catch {
         setSession(null);
       } finally {
         setLoading(false);
