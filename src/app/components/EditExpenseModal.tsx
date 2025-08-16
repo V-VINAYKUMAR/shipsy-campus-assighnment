@@ -232,7 +232,7 @@ export default function EditExpenseModal({
 }: EditExpenseModalProps) {
   const [form, setForm] = useState<FormState>({
     description: '',
-    category: 'TRAVEL',
+    category: 'TRAVEL' as 'TRAVEL' | 'FOOD' | 'OFFICE' | 'OTHER',
     reimbursable: false,
     amount: '',
     taxRate: '18'
@@ -256,7 +256,13 @@ export default function EditExpenseModal({
     setSubmitting(true);
 
     try {
-      await onSave(form);
+      await onSave({
+        description: form.description,
+        category: form.category,
+        reimbursable: form.reimbursable,
+        amount: parseFloat(form.amount),
+        taxRate: parseFloat(form.taxRate)
+      });
       onClose();
     } catch (error) {
       console.error('Error saving expense:', error);
