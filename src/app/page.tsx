@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import EditExpenseModal from './components/EditExpenseModal';
-import { Expense, FormState } from '../../src/types/types';
+import { Expense } from '../../src/types/types';
 
 
 export default function HomePage() {
@@ -105,14 +105,14 @@ export default function HomePage() {
     setEditModalOpen(true);
   };
 
-  const handleSaveExpense = async (expenseData: FormState) => {
+  const handleSaveExpense = async (expenseData: Omit<Expense, "id">) => {
     if (!editingExpense) return;
   
     try {
       const res = await fetch(`/api/expenses/${editingExpense.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(expenseData)
+        body: JSON.stringify(expenseData), // ✅ already numbers
       });
   
       if (res.ok) {
@@ -127,6 +127,7 @@ export default function HomePage() {
       alert('Failed to update expense. Please try again.');
     }
   };
+  
 
   return (
     <div className="space-y-8">
